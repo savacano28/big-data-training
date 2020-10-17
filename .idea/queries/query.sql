@@ -1,2 +1,2 @@
 --Q1: Langue plus utilise
-select * from users where identifier='11'
+select count(u.language) from users u group by u.language
