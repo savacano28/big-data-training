@@ -40,7 +40,7 @@ db.tournois.insertMany([
   {_id:4,nom: "Open de Paris-Bercy", date: "10-12-2000",coef:4, dotation:300000, pays_id:2}
   ])
  
-//queries
+#Requête simple 
 //1. Liste des joueurs, n'affiche que le nom et le pays:
 db.joueurs.aggregate([{$lookup: {from: "pays", localField:"pays_id",foreignField:"_id",as: "pays"}},{$project: {_id:0,nom:1, pays:1}}]);
 db.joueurs.aggregate([{$lookup: {from: "pays", localField:"pays_id",foreignField:"_id",as: "pays"}},{$addFields: {"nom_pays": "$pays.nom_pays"}},{$project: {_id:0,nom:1,nom_pays:1}}]);
@@ -58,3 +58,14 @@ db.tournois.aggregate([{$lookup: {from: "pays", localField:"pays_id",foreignFiel
 
 6.Le nom du tournoi qui a la dotation minimum
 7.Le nom du tournoi qui a la dotation maximum
+
+#Requête complexe avec aggregate():
+//1.Affichez la liste des joueurs triée par ordre alphabétique de nom.
+
+//2.Affichez la moyenne des scores de chaque joueur de simple (indiquer le nom des joueurs)
+
+//3.Affichez le score final de chaque équipe de double et classer les équipesde la meilleure à la moins bonne
+
+//4.Affichez, pour chaque joueur son numéro de joueur, son nom, son pays et son score total en simple.
+
+//5.Affichez le nom du joueur qui a joué tous les tournois en simple
