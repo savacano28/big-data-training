@@ -40,6 +40,6 @@ db.tournois.insertMany([
   {_id:4,nom: "Open de Paris-Bercy", date: "10-12-2000",coef:4, dotation:300000, pays_id:2}
   ])
  
---queries
-1. Liste des joueurs, n'affiche que le nom et le pays:
+//queries
+//1. Liste des joueurs, n'affiche que le nom et le pays:
 db.joueurs.aggregate([{$lookup: {from: "pays", localField:"pays_id",foreignField:"_id",as: "pays"}},{$addFields: {"nom_pays": "$pays.nom_pays"}},{$project: {_id:0,nom:1,nom_pays:1}}]);
