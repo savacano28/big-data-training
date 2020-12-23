@@ -41,11 +41,12 @@ db.tournois.insertMany([
   ])
  
 //queries
-//1. Liste des joueurs, n'affiche que le nom et le pays:
+1. Liste des joueurs, n'affiche que le nom et le pays:
 db.joueurs.aggregate([{$lookup: {from: "pays", localField:"pays_id",foreignField:"_id",as: "pays"}},{$project: {_id:0,nom:1, pays:1}}]);
 db.joueurs.aggregate([{$lookup: {from: "pays", localField:"pays_id",foreignField:"_id",as: "pays"}},{$addFields: {"nom_pays": "$pays.nom_pays"}},{$project: {_id:0,nom:1,nom_pays:1}}]);
-2.Nom des joueuses
 
+2.Nom des joueuses
+db.joueurs.find({sexe:"Fémenin"},{_id:0,nom:1});
 3.Liste des tournois se déroulant en France ou dont la dotation est supérieure à 800000.
 4.Nom des joueurs français qui jouent dans une équipe de double.
 5.Pour chaque tournoi, son nom, le nom du pays où il se déroule, sa dotation et la monnaie dans laquelle elle s’exprime.
