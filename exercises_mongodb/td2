@@ -44,18 +44,32 @@ db.tournois.insertMany([
 //1. Liste des joueurs, n'affiche que le nom et le pays:
 db.joueurs.aggregate([{$lookup: {from: "pays", localField:"pays_id",foreignField:"_id",as: "pays"}},{$project: {_id:0,nom:1, pays:1}}]);
 db.joueurs.aggregate([{$lookup: {from: "pays", localField:"pays_id",foreignField:"_id",as: "pays"}},{$addFields: {"nom_pays": "$pays.nom_pays"}},{$project: {_id:0,nom:1,nom_pays:1}}]);
+{ "nom" : "Roddick", "nom_pays" : [ "Etat-Unis" ] }
+{ "nom" : "Ginepri", "nom_pays" : [ "Etat-Unis" ] }
+{ "nom" : "Gasquet", "nom_pays" : [ "France" ] }
+{ "nom" : "Monfils", "nom_pays" : [ "France" ] }
+{ "nom" : "Mauresmo", "nom_pays" : [ "France" ] }
+{ "nom" : "Daveport", "nom_pays" : [ "Etat-Unis" ] }
 
 //2.Nom des joueuses
 db.joueurs.find({sexe:"Fémenin"},{_id:0,nom:1});
+{ "nom" : "Mauresmo" }
+{ "nom" : "Daveport" }
 
 //3.Liste des tournois se déroulant en France ou dont la dotation est supérieure à 800000.
 db.tournois.aggregate([{$lookup: {from: "pays", localField:"pays_id",foreignField:"_id",as: "pays"}},{$match:{"pays.nom_pays":"France","dotation":{$gt:400000}}},{$addFields:{"pays":"$pays.nom_pays"}},{$project:{_id:0,pays_id:0}}]);
 
 //4.Nom des joueurs français qui jouent dans une équipe de double.
 db.equipes.aggregate([{ $project: {joueur:"$joueur0_id", _id: 0 } },{ $unionWith: { coll: "equipes", pipeline: [ { $project: { joueur:"$joueur1_id", _id: 0 } } ]} },{$group:{_id:"$joueur"}},{$lookup: {from: "joueurs", localField:"_id",foreignField:"_id",as: "joueur"}},{$match:{"joueur.pays_id":2}},{$addFields:{joueur_nom:"$joueur.nom"}},{$project:{"joueur_nom":1,_id:0}} ]);
+{ "joueur_nom" : [ "Monfils" ] }
+{ "joueur_nom" : [ "Gasquet" ] }
 
 //5.Pour chaque tournoi, son nom, le nom du pays où il se déroule, sa dotation et la monnaie dans laquelle elle s’exprime.
 db.tournois.aggregate([{$lookup: {from: "pays", localField:"pays_id",foreignField:"_id",as: "pays"}},{$addFields:{"pays":"$pays.nom_pays","monnaie":"$pays.monnaie"}},{$project:{_id:0,nom:1,"pays":1,dotation:1,"monnaie":1}}]);
+{ "nom" : "Roland Garros", "dotation" : 700000, "pays" : [ "France" ], "monnaie" : [ "EU" ] }
+{ "nom" : "Open d'Autralie", "dotation" : 700000, "pays" : [ "Australie" ], "monnaie" : [ "AUD" ] }
+{ "nom" : "Flusshing Meadows", "dotation" : 1000000, "pays" : [ "Etat-Unis" ], "monnaie" : [ "USD" ] }
+{ "nom" : "Open de Paris-Bercy", "dotation" : 300000, "pays" : [ "France" ], "monnaie" : [ "EU" ] }
 
 //6.Le nom du tournoi qui a la dotation minimum
 db.tournois.find({},{nom:1,dotation:1,_id:0}).sort({dotation:1}).limit(1)
