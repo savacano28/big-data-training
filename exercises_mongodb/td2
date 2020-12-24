@@ -81,6 +81,13 @@ db.tournois.find({},{nom:1,dotation:1,_id:0}).sort({dotation:-1}).limit(1)
 
 #Requête complexe avec aggregate():
 //1.Affichez la liste des joueurs triée par ordre alphabétique de nom.
+db.joueurs.find().sort({nom:1})
+{ "_id" : 6, "no" : 200, "nom" : "Daveport", "sexe" : "Fémenin", "pays_id" : 3 }
+{ "_id" : 3, "no" : 30, "nom" : "Gasquet", "sexe" : "Masculin", "pays_id" : 2 }
+{ "_id" : 2, "no" : 20, "nom" : "Ginepri", "sexe" : "Masculin", "pays_id" : 3 }
+{ "_id" : 5, "no" : 100, "nom" : "Mauresmo", "sexe" : "Fémenin", "pays_id" : 2 }
+{ "_id" : 4, "no" : 40, "nom" : "Monfils", "sexe" : "Masculin", "pays_id" : 2 }
+{ "_id" : 1, "no" : 10, "nom" : "Roddick", "sexe" : "Masculin", "pays_id" : 3 }
 
 //2.Affichez la moyenne des scores de chaque joueur de simple (indiquer le nom des joueurs)
 
