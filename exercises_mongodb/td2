@@ -58,8 +58,12 @@ db.equipes.aggregate([{ $project: {joueur:"$joueur0_id", _id: 0 } },{ $unionWith
 db.tournois.aggregate([{$lookup: {from: "pays", localField:"pays_id",foreignField:"_id",as: "pays"}},{$addFields:{"pays":"$pays.nom_pays","monnaie":"$pays.monnaie"}},{$project:{_id:0,nom:1,"pays":1,dotation:1,"monnaie":1}}]);
 
 //6.Le nom du tournoi qui a la dotation minimum
+db.tournois.find({},{nom:1,dotation:1,_id:0}).sort({dotation:1}).limit(1)
+{ "nom" : "Open de Paris-Bercy", "dotation" : 300000 }
 
 //7.Le nom du tournoi qui a la dotation maximum
+db.tournois.find({},{nom:1,dotation:1,_id:0}).sort({dotation:-1}).limit(1)
+{ "nom" : "Flusshing Meadows", "dotation" : 1000000 }
 
 #Requête complexe avec aggregate():
 //1.Affichez la liste des joueurs triée par ordre alphabétique de nom.
