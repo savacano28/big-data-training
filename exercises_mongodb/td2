@@ -52,6 +52,7 @@ db.joueurs.find({sexe:"Fémenin"},{_id:0,nom:1});
 db.tournois.aggregate([{$lookup: {from: "pays", localField:"pays_id",foreignField:"_id",as: "pays"}},{$match:{"pays.nom_pays":"France","dotation":{$gt:400000}}},{$addFields:{"pays":"$pays.nom_pays"}},{$project:{_id:0,pays_id:0}}]);
 
 //4.Nom des joueurs français qui jouent dans une équipe de double.
+db.equipes.aggregate([{ $project: {joueur:"$joueur0_id", _id: 0 } },{ $unionWith: { coll: "equipes", pipeline: [ { $project: { joueur:"$joueur1_id", _id: 0 } } ]} },{$group:{_id:"$joueur"}},{$lookup: {from: "joueurs", localField:"_id",foreignField:"_id",as: "joueur"}},{$match:{"joueur.pays_id":2}},{$project:{"joueur.nom":1}} ]);
 
 //5.Pour chaque tournoi, son nom, le nom du pays où il se déroule, sa dotation et la monnaie dans laquelle elle s’exprime.
 db.tournois.aggregate([{$lookup: {from: "pays", localField:"pays_id",foreignField:"_id",as: "pays"}},{$addFields:{"pays":"$pays.nom_pays","monnaie":"$pays.monnaie"}},{$project:{_id:0,nom:1,"pays":1,dotation:1,"monnaie":1}}]);
