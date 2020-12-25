@@ -98,6 +98,9 @@ db.simples.aggregate([{$group:{_id:"$joueur_id",avg_score:{$avg:"$score"},no_sim
 { "avg_score" : 8, "no_simples" : 1, "joueur" : [ { "no" : 20, "nom" : "Ginepri" } ] }
 
 //3.Affichez le score final de chaque équipe de double et classer les équipesde la meilleure à la moins bonne
+db.equipes.aggregate([{$group:{_id:"$no",final_score:{$sum:"$score"},no_simples:{$sum:1}}},{$project:{final_score:1,no_simples:1, equipe:"$_id",_id:0}},{$sort:{"final_score":-1}}])
+{ "final_score" : 16, "no_simples" : 2, "equipe" : 1 }
+{ "final_score" : 15, "no_simples" : 2, "equipe" : 2 }
 
 //4.Affichez, pour chaque joueur son numéro de joueur, son nom, son pays et son score total en simple.
 
