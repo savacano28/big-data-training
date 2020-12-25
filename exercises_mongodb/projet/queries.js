@@ -28,6 +28,7 @@ db.joueurs.find().sort({nom:1})
 
 //2
 db.simples.aggregate([{$group:{_id:"$joueur_id",avg_score:{$avg:"$score"},no_simples:{$sum:1}}},{$lookup:{from:"joueurs",localField:"_id",foreignField:"_id",as:"joueur"}},{$project:{"joueur.nom":1,avg_score:1,no_simples:1,"joueur.no":1,_id:0}},{$sort:{"avg_score":1}}])
+db.simples.aggregate([{$lookup:{from:"tournois",localField:"tournoi_id",foreignField:"_id",as:"tournoi"}},{$group:{_id:"$joueur_id",avg_score:{$avg:{$multiply:["$score",{$arrayElemAt: ["$tournoi.coef",0]}]}},no_simples:{$sum:1}}},{$lookup:{from:"joueurs",localField:"_id",foreignField:"_id",as:"joueur"}},{$project:{"joueur.nom":1,avg_score:1,no_simples:1,"joueur.no":1,_id:0}},{$sort:{"avg_score":1}}])
 
 //3
 db.equipes.aggregate([{$group:{_id:"$no",final_score:{$sum:"$score"},no_simples:{$sum:1}}},{$project:{final_score:1,no_simples:1, equipe:"$_id",_id:0}},{$sort:{"final_score":-1}}])
