@@ -90,6 +90,12 @@ db.joueurs.find().sort({nom:1})
 { "_id" : 1, "no" : 10, "nom" : "Roddick", "sexe" : "Masculin", "pays_id" : 3 }
 
 //2.Affichez la moyenne des scores de chaque joueur de simple (indiquer le nom des joueurs)
+db.simples.aggregate([{$group:{_id:"$joueur_id",avg_score:{$avg:"$score"},no_simples:{$sum:1}}},{$lookup:{from:"joueurs",localField:"_id",foreignField:"_id",as:"joueur"}},{$project:{"joueur.nom":1,avg_score:1,no_simples:1,"joueur.no":1,_id:0}},{$sort:{"avg_score":1}}])
+{ "avg_score" : 1, "no_simples" : 1, "joueur" : [ { "no" : 30, "nom" : "Gasquet" } ] }
+{ "avg_score" : 3, "no_simples" : 1, "joueur" : [ { "no" : 40, "nom" : "Monfils" } ] }
+{ "avg_score" : 4, "no_simples" : 1, "joueur" : [ { "no" : 200, "nom" : "Daveport" } ] }
+{ "avg_score" : 5.75, "no_simples" : 4, "joueur" : [ { "no" : 10, "nom" : "Roddick" } ] }
+{ "avg_score" : 8, "no_simples" : 1, "joueur" : [ { "no" : 20, "nom" : "Ginepri" } ] }
 
 //3.Affichez le score final de chaque équipe de double et classer les équipesde la meilleure à la moins bonne
 
