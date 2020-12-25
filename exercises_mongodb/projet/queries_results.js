@@ -24,6 +24,7 @@ db.tournois.aggregate([{$lookup: {from: "pays", localField:"pays_id",foreignFiel
 
 //4.Nom des joueurs français qui jouent dans une équipe de double.
 db.equipes.aggregate([{ $project: {joueur:"$joueur0_id", _id: 0 } },{ $unionWith: { coll: "equipes", pipeline: [ { $project: { joueur:"$joueur1_id", _id: 0 } } ]} },{$group:{_id:"$joueur"}},{$lookup: {from: "joueurs", localField:"_id",foreignField:"_id",as: "joueur"}},{$match:{"joueur.pays_id":2}},{$addFields:{joueur_nom:"$joueur.nom"}},{$project:{"joueur_nom":1,_id:0}} ]);
+db.equipes.aggregate([{ $project: {joueur:"$joueur0_id", _id: 0 } },{ $unionWith: { coll: "equipes", pipeline: [ { $project: { joueur:"$joueur1_id", _id: 0 } } ]} },{$group:{_id:"$joueur"}},{$lookup: {from: "joueurs", localField:"_id",foreignField:"_id",as: "joueur"}},{$lookup:{from:"pays", localField:"joueur.pays_id",foreignField:"_id",as:"pays"}},{$match:{"pays.nom_pays":"France"}},{$addFields:{joueur_nom:"$joueur.nom"}},{$project:{"joueur_nom":1,_id:0}} ]);
 
 { "joueur_nom" : [ "Monfils" ] }
 { "joueur_nom" : [ "Gasquet" ] }
