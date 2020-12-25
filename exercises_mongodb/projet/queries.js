@@ -36,6 +36,7 @@ db.equipes.aggregate([{$lookup:{from:"tournois",localField:"tournoi_id",foreignF
 
 //4
 db.simples.aggregate([{$group:{_id:"$joueur_id",total_simple_score:{$sum:"$score"},no_simples:{$sum:1}}},{$lookup:{from:"joueurs",localField:"_id",foreignField:"_id",as:"joueur"}},{$lookup:{from:"pays",localField:"joueur.pays_id",foreignField:"_id",as:"pays"}},{$addFields:{"pays":"$pays.nom_pays","joueur_no":"$joueur.no","joueur_nom":"$joueur.nom"}},{$project:{"joueur_nom":1,total_simple_score:1,no_simples:1,"joueur_no":1,"pays":1,_id:0}},{$sort:{"total_simple_score":-1}}])
+db.simples.aggregate([{$lookup:{from:"tournois",localField:"tournoi_id",foreignField:"_id",as:"tournoi"}},{$group:{_id:"$joueur_id",total_simple_score:{$sum:{$multiply:["$score",{$arrayElemAt: ["$tournoi.coef",0]}]}},no_simples:{$sum:1}}},{$lookup:{from:"joueurs",localField:"_id",foreignField:"_id",as:"joueur"}},{$lookup:{from:"pays",localField:"joueur.pays_id",foreignField:"_id",as:"pays"}},{$addFields:{"pays":"$pays.nom_pays","joueur_no":"$joueur.no","joueur_nom":"$joueur.nom"}},{$project:{"joueur_nom":1,total_simple_score:1,no_simples:1,"joueur_no":1,"pays":1,_id:0}},{$sort:{"total_simple_score":-1}}])
 
 //5
 db.simples.aggregate([{$group:{_id:"$joueur_id",simples:{$addToSet:"$tournoi_id"}}},{$lookup:{from:"joueurs",localField:"_id",foreignField:"_id",as:"joueur"}},{$addFields:{"joueur_nom":"$joueur.nom",no_simples:{"$size":"$simples"}}},{$match:{"no_simples":4}},{$project:{_id:0,joueur_nom:1}},{$sort:{"joueur.nom":1}}])
