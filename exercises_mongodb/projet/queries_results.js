@@ -19,7 +19,7 @@ db.joueurs.find({sexe:"Fémenin"},{_id:0,nom:1});
 
 
 //3.Liste des tournois se déroulant en France ou dont la dotation est supérieure à 800000.
-db.tournois.aggregate([{$lookup: {from: "pays", localField:"pays_id",foreignField:"_id",as: "pays"}},{$match:{"pays.nom_pays":"France","dotation":{$gt:400000}}},{$addFields:{"pays":"$pays.nom_pays"}},{$project:{_id:0,pays_id:0}}]);
+db.tournois.aggregate([{$lookup: {from: "pays", localField:"pays_id",foreignField:"_id",as: "pays"}},{$match:{"pays.nom_pays":"France","dotation":{$gt:800000}}},{$addFields:{"pays":"$pays.nom_pays"}},{$project:{_id:0,pays_id:0}}]);
 
 
 //4.Nom des joueurs français qui jouent dans une équipe de double.
