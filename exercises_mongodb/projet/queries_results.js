@@ -1,4 +1,4 @@
-#Requête simple 
+//Requête simple 
 //1. Liste des joueurs, n'affiche que le nom et le pays:
 db.joueurs.aggregate([{$lookup: {from: "pays", localField:"pays_id",foreignField:"_id",as: "pays"}},{$project: {_id:0,nom:1, pays:1}}]);
 db.joueurs.aggregate([{$lookup: {from: "pays", localField:"pays_id",foreignField:"_id",as: "pays"}},{$addFields: {"nom_pays": "$pays.nom_pays"}},{$project: {_id:0,nom:1,nom_pays:1}}]);
@@ -50,7 +50,7 @@ db.tournois.find({},{nom:1,dotation:1,_id:0}).sort({dotation:-1}).limit(1)
 { "nom" : "Flusshing Meadows", "dotation" : 1000000 }
 
 
-#Requête complexe avec aggregate():
+//Requête complexe avec aggregate():
 //1.Affichez la liste des joueurs triée par ordre alphabétique de nom.
 db.joueurs.find().sort({nom:1})
 
