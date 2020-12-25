@@ -16,21 +16,21 @@ db.pays.insertMany([
 ])
 
 db.equipes.insertMany([
-  {no: 1,joueur0_id:1,joueur1_id:4,tournoi_id:1,score:9},
-  {no: 1,joueur0_id:1,joueur1_id:4,tournoi_id:3,score:7},
-  {no: 2,joueur0_id:2,joueur1_id:3,tournoi_id:1,score:7},
-  {no: 2,joueur0_id:2,joueur1_id:3,tournoi_id:3,score:8}
+  {no: 1,joueur0_id:1,joueur1_id:4,tournoi_id:1,points:9},
+  {no: 1,joueur0_id:1,joueur1_id:4,tournoi_id:3,points:7},
+  {no: 2,joueur0_id:2,joueur1_id:3,tournoi_id:1,points:7},
+  {no: 2,joueur0_id:2,joueur1_id:3,tournoi_id:3,points:8}
 ])
 
 db.simples.insertMany([
-  {joueur_id:1,tournoi_id:1,score:7},
-  {joueur_id:2,tournoi_id:1,score:8},
-  {joueur_id:6,tournoi_id:1,score:4},
-  {joueur_id:1,tournoi_id:2,score:8},
-  {joueur_id:3,tournoi_id:2,score:1},
-  {joueur_id:4,tournoi_id:2,score:3},
-  {joueur_id:1,tournoi_id:3,score:8},
-  {joueur_id:1,tournoi_id:4,score:0},
+  {joueur_id:1,tournoi_id:1,points:7},
+  {joueur_id:2,tournoi_id:1,points:8},
+  {joueur_id:6,tournoi_id:1,points:4},
+  {joueur_id:1,tournoi_id:2,points:8},
+  {joueur_id:3,tournoi_id:2,points:1},
+  {joueur_id:4,tournoi_id:2,points:3},
+  {joueur_id:1,tournoi_id:3,points:8},
+  {joueur_id:1,tournoi_id:4,points:0},
 ])
 
 db.tournois.insertMany([
