@@ -111,3 +111,5 @@ db.simples.aggregate([{$group:{_id:"$joueur_id",total_simple_score:{$sum:"$score
 { "total_simple_score" : 1, "no_simples" : 1, "pays" : [ "France" ], "joueur_no" : [ 30 ], "joueur_nom" : [ "Gasquet" ] }
 
 //5.Affichez le nom du joueur qui a joué tous les tournois en simple
+db.simples.aggregate([{$group:{_id:"$joueur_id",simples:{$addToSet:"$tournoi_id"}}},{$lookup:{from:"joueurs",localField:"_id",foreignField:"_id",as:"joueur"}},{$addFields:{"joueur_nom":"$joueur.nom",no_simples:{"$size":"$simples"}}},{$match:{"no_simples":4}},{$project:{_id:0,joueur_nom:1}},{$sort:{"joueur.nom":1}}])
+{ "joueur_nom" : [ "Roddick" ] }
