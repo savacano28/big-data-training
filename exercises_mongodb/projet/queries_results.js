@@ -1,6 +1,5 @@
 //Requête simple 
 //1. Liste des joueurs, n'affiche que le nom et le pays:
-db.joueurs.aggregate([{$lookup: {from: "pays", localField:"pays_id",foreignField:"_id",as: "pays"}},{$project: {_id:0,nom:1, pays:1}}]);
 db.joueurs.aggregate([{$lookup: {from: "pays", localField:"pays_id",foreignField:"_id",as: "pays"}},{$addFields: {"nom_pays": "$pays.nom_pays"}},{$project: {_id:0,nom:1,nom_pays:1}}]);
 
 { "nom" : "Roddick", "nom_pays" : [ "Etat-Unis" ] }
@@ -74,6 +73,15 @@ db.simples.aggregate([{$lookup:{from:"tournois",localField:"tournoi_id",foreignF
 { "avg_score" : 39.5, "no_simples" : 4, "joueur" : [ { "no" : 10, "nom" : "Roddick" } ] }
 { "avg_score" : 40, "no_simples" : 1, "joueur" : [ { "no" : 200, "nom" : "Daveport" } ] }
 { "avg_score" : 80, "no_simples" : 1, "joueur" : [ { "no" : 20, "nom" : "Ginepri" } ] }
+
+//score sans coefs
+db.simples.aggregate([{$group:{_id:"$joueur_id",avg_score:{$avg:"$score"},no_simples:{$sum:1}}},{$lookup:{from:"joueurs",localField:"_id",foreignField:"_id",as:"joueur"}},{$project:{"joueur.nom":1,avg_score:1,no_simples:1,"joueur.no":1,_id:0}},{$sort:{"avg_score":1}}])
+
+{ "avg_score" : 1, "no_simples" : 1, "joueur" : [ { "no" : 30, "nom" : "Gasquet" } ] }
+{ "avg_score" : 3, "no_simples" : 1, "joueur" : [ { "no" : 40, "nom" : "Monfils" } ] }
+{ "avg_score" : 4, "no_simples" : 1, "joueur" : [ { "no" : 200, "nom" : "Daveport" } ] }
+{ "avg_score" : 5.75, "no_simples" : 4, "joueur" : [ { "no" : 10, "nom" : "Roddick" } ] }
+{ "avg_score" : 8, "no_simples" : 1, "joueur" : [ { "no" : 20, "nom" : "Ginepri" } ] }
 
 
 //3.Affichez le score final de chaque équipe de double et classer les équipesde la meilleure à la moins bonne
