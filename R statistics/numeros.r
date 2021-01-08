@@ -1,5 +1,12 @@
-sample1<-sample_n(data.frame(train), 10)
+sample1<-sample_n(data.frame(train), 1000)
 sample_sans_label<-sample1[1,1:785]
+
+inertie = c()
+for (k in 1:15){
+res=kmeans(sample_sans_label,centers=k,nstart = 10)
+inertie[k]=res$tot.withinss}
+plot(1:15,inertie,type='l')
+
 mnist_clustering=kmeans(sample_sans_label,centers=10,nstart = 10)
 mnist_centers <- mnist_clustering$centers
 
@@ -12,9 +19,4 @@ for(i in seq_len(nrow(mnist_centers))) {
 }
 
 
-inertie = c()
-for (k in 1:15){
-res=kmeans(sample1,centers=k,nstart = 10)
-inertie[k]=res$tot.withinss}
-plot(1:15,inertie,type='l')
-res_ka=kmeans(sample1,centers=3,nstart = 10)
+
