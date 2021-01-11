@@ -13,3 +13,5 @@ clas=knn(s,t,sl,k)
 tbc[k]=mean(clas==tl)}
 
 plot(1:20,tbc,ylim=c(0,1),xlab='k',ylab='taux de bons classements')
+
+table(clas,tl)
