@@ -5,12 +5,12 @@ library('rpart.plot')
 library(rattle)
 library(RColorBrewer)
 
-app=data.frame(cbind(app_x,app_y))
+app=data.frame(cbind(s,sl))
 names(app)[785]="y"
 app$y=as.factor(app$y)
-test=data.frame(cbind(test_x,test_y))
+test=data.frame(cbind(t,tl))
 names(test)[785]="y"
-test$y=as.factor(test$y)
+test$y=as.factor(tl)
 arbre=rpart(x.1~.,data=app[0:784])
 arbre=rpart(y~.,data=app)
 res=predict(arbre,newdata=test,type='class')
