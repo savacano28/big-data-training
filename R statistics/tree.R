@@ -31,5 +31,9 @@ png(file="/home/scasanova/Desktop/R statistics/arbre1.png",width=1500, height=15
 fancyRpartPlot(arbre,caption=NULL)
 dev.off()
 
+res.pca<- PCA(s)
+barplot(res.pca$eig[,2],main="Pourcentage de variance expliquée")
+
+
 #https://www.gormanalysis.com/blog/decision-trees-in-r-using-rpart/
 #https://www.datamentor.io/r-programming/saving-plot/
