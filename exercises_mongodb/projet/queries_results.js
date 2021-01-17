@@ -64,6 +64,15 @@ db.joueurs.find().sort({nom:1})
 { "_id" : 4, "no" : 40, "nom" : "Monfils", "sexe" : "Masculin", "pays_id" : 2 }
 { "_id" : 1, "no" : 10, "nom" : "Roddick", "sexe" : "Masculin", "pays_id" : 3 }
 
+//sans id
+db.joueurs.find({},{_id:0}).sort({nom:1})
+{ "no" : 200, "nom" : "Daveport", "sexe" : "Fémenin", "pays_id" : 3 }
+{ "no" : 30, "nom" : "Gasquet", "sexe" : "Masculin", "pays_id" : 2 }
+{ "no" : 20, "nom" : "Ginepri", "sexe" : "Masculin", "pays_id" : 3 }
+{ "no" : 100, "nom" : "Mauresmo", "sexe" : "Fémenin", "pays_id" : 2 }
+{ "no" : 40, "nom" : "Monfils", "sexe" : "Masculin", "pays_id" : 2 }
+{ "no" : 10, "nom" : "Roddick", "sexe" : "Masculin", "pays_id" : 3 }
+
 
 //2.Affichez la moyenne des scores de chaque joueur de simple (indiquer le nom des joueurs)
 db.simples.aggregate([{$lookup:{from:"tournois",localField:"tournoi_id",foreignField:"_id",as:"tournoi"}},{$group:{_id:"$joueur_id",avg_score:{$avg:{$multiply:["$points",{$arrayElemAt: ["$tournoi.coef",0]}]}},no_simples:{$sum:1}}},{$lookup:{from:"joueurs",localField:"_id",foreignField:"_id",as:"joueur"}},{$project:{"joueur.nom":1,avg_score:1,no_simples:1,"joueur.no":1,_id:0}},{$sort:{"avg_score":1}}])
@@ -73,6 +82,14 @@ db.simples.aggregate([{$lookup:{from:"tournois",localField:"tournoi_id",foreignF
 { "avg_score" : 39.5, "no_simples" : 4, "joueur" : [ { "no" : 10, "nom" : "Roddick" } ] }
 { "avg_score" : 40, "no_simples" : 1, "joueur" : [ { "no" : 200, "nom" : "Daveport" } ] }
 { "avg_score" : 80, "no_simples" : 1, "joueur" : [ { "no" : 20, "nom" : "Ginepri" } ] }
+
+//juste nom joueurs
+db.simples.aggregate([{$lookup:{from:"tournois",localField:"tournoi_id",foreignField:"_id",as:"tournoi"}},{$group:{_id:"$joueur_id",avg_score:{$avg:{$multiply:["$points",{$arrayElemAt: ["$tournoi.coef",0]}]}},no_simples:{$sum:1}}},{$lookup:{from:"joueurs",localField:"_id",foreignField:"_id",as:"joueur"}},{$addFields: {"nom_joueur": "$joueur.nom"}},{$project:{nom_joueur:1,avg_score:1,_id:0}},{$sort:{"avg_score":1}}])
+{ "avg_score" : 5, "nom_joueur" : [ "Gasquet" ] }
+{ "avg_score" : 15, "nom_joueur" : [ "Monfils" ] }
+{ "avg_score" : 39.5, "nom_joueur" : [ "Roddick" ] }
+{ "avg_score" : 40, "nom_joueur" : [ "Daveport" ] }
+{ "avg_score" : 80, "nom_joueur" : [ "Ginepri" ] }
 
 //score sans coefs
 db.simples.aggregate([{$group:{_id:"$joueur_id",avg_score:{$avg:"$score"},no_simples:{$sum:1}}},{$lookup:{from:"joueurs",localField:"_id",foreignField:"_id",as:"joueur"}},{$project:{"joueur.nom":1,avg_score:1,no_simples:1,"joueur.no":1,_id:0}},{$sort:{"avg_score":1}}])
