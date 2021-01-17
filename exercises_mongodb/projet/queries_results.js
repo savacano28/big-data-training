@@ -107,6 +107,10 @@ db.equipes.aggregate([{$lookup:{from:"tournois",localField:"tournoi_id",foreignF
 { "final_score" : 132, "no_simples" : 2, "equipe" : 1 }
 { "final_score" : 118, "no_simples" : 2, "equipe" : 2 }
 
+//correction nom de columns
+db.equipes.aggregate([{$lookup:{from:"tournois",localField:"tournoi_id",foreignField:"_id",as:"tournoi"}},{$group:{_id:"$no",final_score:{$sum:{$multiply:["$points",{$arrayElemAt: ["$tournoi.coef",0]}]}},no_doubles:{$sum:1}}},{$project:{final_score:1, equipe:"$_id",_id:0}},{$sort:{"final_score":-1}}])
+{ "final_score" : 132, "equipe" : 1 }
+{ "final_score" : 118, "equipe" : 2 }
 
 //4.Affichez, pour chaque joueur son numéro de joueur, son nom, son pays et son score total en simple.
 db.simples.aggregate([{$lookup:{from:"tournois",localField:"tournoi_id",foreignField:"_id",as:"tournoi"}},{$group:{_id:"$joueur_id",total_simple_score:{$sum:{$multiply:["$points",{$arrayElemAt: ["$tournoi.coef",0]}]}},no_simples:{$sum:1}}},{$lookup:{from:"joueurs",localField:"_id",foreignField:"_id",as:"joueur"}},{$lookup:{from:"pays",localField:"joueur.pays_id",foreignField:"_id",as:"pays"}},{$addFields:{"pays":"$pays.nom_pays","joueur_no":"$joueur.no","joueur_nom":"$joueur.nom"}},{$project:{"joueur_nom":1,total_simple_score:1,no_simples:1,"joueur_no":1,"pays":1,_id:0}},{$sort:{"total_simple_score":-1}}])
@@ -117,6 +121,13 @@ db.simples.aggregate([{$lookup:{from:"tournois",localField:"tournoi_id",foreignF
 { "total_simple_score" : 15, "no_simples" : 1, "pays" : [ "France" ], "joueur_no" : [ 40 ], "joueur_nom" : [ "Monfils" ] }
 { "total_simple_score" : 5, "no_simples" : 1, "pays" : [ "France" ], "joueur_no" : [ 30 ], "joueur_nom" : [ "Gasquet" ] }
 
+//sans nombre de simples
+db.simples.aggregate([{$lookup:{from:"tournois",localField:"tournoi_id",foreignField:"_id",as:"tournoi"}},{$group:{_id:"$joueur_id",total_simple_score:{$sum:{$multiply:["$points",{$arrayElemAt: ["$tournoi.coef",0]}]}},no_simples:{$sum:1}}},{$lookup:{from:"joueurs",localField:"_id",foreignField:"_id",as:"joueur"}},{$lookup:{from:"pays",localField:"joueur.pays_id",foreignField:"_id",as:"pays"}},{$addFields:{"pays":"$pays.nom_pays","joueur_no":"$joueur.no","joueur_nom":"$joueur.nom"}},{$project:{"joueur_nom":1,total_simple_score:1,"joueur_no":1,"pays":1,_id:0}},{$sort:{"total_simple_score":-1}}])
+{ "total_simple_score" : 158, "pays" : [ "Etat-Unis" ], "joueur_no" : [ 10 ], "joueur_nom" : [ "Roddick" ] }
+{ "total_simple_score" : 80, "pays" : [ "Etat-Unis" ], "joueur_no" : [ 20 ], "joueur_nom" : [ "Ginepri" ] }
+{ "total_simple_score" : 40, "pays" : [ "Etat-Unis" ], "joueur_no" : [ 200 ], "joueur_nom" : [ "Daveport" ] }
+{ "total_simple_score" : 15, "pays" : [ "France" ], "joueur_no" : [ 40 ], "joueur_nom" : [ "Monfils" ] }
+{ "total_simple_score" : 5, "pays" : [ "France" ], "joueur_no" : [ 30 ], "joueur_nom" : [ "Gasquet" ] }
 
 //5.Affichez le nom du joueur qui a joué tous les tournois en simple
 db.simples.aggregate([{$group:{_id:"$joueur_id",simples:{$addToSet:"$tournoi_id"}}},{$lookup:{from:"joueurs",localField:"_id",foreignField:"_id",as:"joueur"}},{$addFields:{"joueur_nom":"$joueur.nom",no_simples:{"$size":"$simples"}}},{$match:{"no_simples":4}},{$project:{_id:0,joueur_nom:1}},{$sort:{"joueur.nom":1}}])
