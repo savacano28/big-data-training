@@ -41,7 +41,9 @@ db.joueurs.find({},{_id:0}).sort({nom:1})
 //2.Affichez la moyenne des scores de chaque joueur de simple (indiquer le nom des joueurs)
 //score : points* coefTournois
 db.simples.aggregate([{$lookup:{from:"tournois",localField:"tournoi_id",foreignField:"_id",as:"tournoi"}},
-                      {$group:{_id:"$joueur_id",avg_score:{$avg:{$multiply:["$points",{$arrayElemAt: ["$tournoi.coef",0]}]}},no_simples:{$sum:1}}},
+                      {$group:{_id:"$joueur_id",
+                               avg_score:{$avg:{$multiply:["$points",{$arrayElemAt: ["$tournoi.coef",0]}]}},
+                               no_simples:{$sum:1}}},
                       {$lookup:{from:"joueurs",localField:"_id",foreignField:"_id",as:"joueur"}},
                       {$addFields: {"nom_joueur": "$joueur.nom"}},
                       {$project:{nom_joueur:1,avg_score:1,_id:0}},{$sort:{"avg_score":1}}])
@@ -54,13 +56,17 @@ db.simples.aggregate([{$group:{_id:"$joueur_id",avg_score:{$avg:"$points"},no_si
 
 //3.Affichez le score final de chaque équipe de double et classer les équipesde la meilleure à la moins bonne
 db.equipes.aggregate([{$lookup:{from:"tournois",localField:"tournoi_id",foreignField:"_id",as:"tournoi"}},
-                      {$group:{_id:"$no",final_score:{$sum:{$multiply:["$points",{$arrayElemAt: ["$tournoi.coef",0]}]}},no_doubles:{$sum:1}}},
+                      {$group:{_id:"$no",
+                               final_score:{$sum:{$multiply:["$points",{$arrayElemAt: ["$tournoi.coef",0]}]}},
+                               no_doubles:{$sum:1}}},
                       {$project:{final_score:1, equipe:"$_id",_id:0}},
                       {$sort:{"final_score":-1}}])
 
 //4.Affichez, pour chaque joueur son numéro de joueur, son nom, son pays et son score total en simple.
 db.simples.aggregate([{$lookup:{from:"tournois",localField:"tournoi_id",foreignField:"_id",as:"tournoi"}},
-                      {$group:{_id:"$joueur_id",total_simple_score:{$sum:{$multiply:["$points",{$arrayElemAt: ["$tournoi.coef",0]}]}},no_simples:{$sum:1}}},
+                      {$group:{_id:"$joueur_id",
+                               total_simple_score:{$sum:{$multiply:["$points",{$arrayElemAt: ["$tournoi.coef",0]}]}},
+                               no_simples:{$sum:1}}},
                       {$lookup:{from:"joueurs",localField:"_id",foreignField:"_id",as:"joueur"}},
                       {$lookup:{from:"pays",localField:"joueur.pays_id",foreignField:"_id",as:"pays"}},
                       {$addFields:{"pays":"$pays.nom_pays","joueur_no":"$joueur.no","joueur_nom":"$joueur.nom"}},
