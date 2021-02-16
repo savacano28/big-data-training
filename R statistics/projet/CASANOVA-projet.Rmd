@@ -1,0 +1,129 @@
+---
+title: "Fouille de données massives - Projet final"
+author: "CASANOVA MARROQUIN Stephanya"
+date: "2/16/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+***
+### **Données  **
+
+Le projet a été basé sur une base de données décrivant **6224 individus américains** décrits par 15 variables : 
+
+* **Age** : âge  
+* **CSP** : catégorie socio-professionnelle  
+* **ScoreDemo** : un score démographique  
+* **Diplome** : le type de diplôme  
+* **ScoreDiplome** : un score construit en fonction du type de diplôme  
+* **StatutMarital** : le statut marital  
+* **Profession** : la profession  
+* **SituationFamiliale** : la situation familiale  
+* **Ethnie** : l’origine ethnique  
+* **Genre** : le genre  
+* **Economies** : le montant des économies  
+* **Dettes** : le montant des dettes  
+* **HeureSemaine** : le nombre d’heures travaillées par semaine  
+* **PaysOrigine** : le pays d’origine    
+* **Revenus** : montant des revenus (supérieur ou inférieur à 50k$)  
+
+### **Environnement de travail**  
+
+Avant de commencer, nous allons suivre les suivants actions qui nous vont permettre avoir notre environnement de travail à jour:
+
+##### **1.    Se placer dans le repertoire de travail : ** 
+  Pour cette partie, il faut juste definir notre repertoire de travail avec **setwd("~\\..")** et après valider avec **getwd()**. 
+  
+##### **2.    Installer les libraries que nous allons utiliser :  **  
+  Selon les objectives de ce projet, il faudrait installer les suivants :  
+  **FactoMineR**  
+  **readtext**  
+  **gdata**  **dplyr**
+  
+##### **3.    Charger les données dans notre environnement :  **  
+  Pour charger les données dans notre environnement, nous allons utiliser le commande :   
+``` {r}
+data = read.table("adult_sample.data",sep=",",header=TRUE,strip.white=TRUE,na.strings ="?", stringsAsFactors = TRUE)
+```
+Dans ce command nous pouvons observer les parameters **sep** : separateur, **strip.white** : supprimer les espaces en blanc après d'un séparateur, **na.strings**: sustitution d'un string pour NA et **stringsAsFactors**.
+
+***
+
+### **Travail effectué**  
+##### **1. Identification des valeurs nulls et imputation des valeurs**  
+Apres d'avoir importé les données, nous allons identifier les valeur nulls et nous allons les imputer un valeur par defaut. Avec le command **summary()** nous allons regarder les details des données :   
+```{r data}
+summary(data)
+```  
+
+Maintenant, avec l'information donnée par summary() nous allons identifier les attributes avec les valeurs nulls et nous pourrons prendre un decision sur quel valeur nous devrons les imputer :  
+
+```{r attWithNA}
+attWithNA<-subset(data, select=c(CSP, Profession, PaysOrigine))
+summary(attWithNA)
+```  
+
+Ces 3 attributs sont categorials donc nous allons imputer aux valeurs nulls le valeur avec la frecuence plus haute dans chaque cas, par exemple :
+
++ CSP valeur_null = maxF(CSP) = Private
+
+```{r naCSP}
+naCSP=length(data$CSP[is.na(data$CSP)])
+data$CSP[is.na(data$CSP)]=sample(levels(data$CSP),naCSP,
+prob=table(data$CSP),replace=TRUE)
+data$CSP=as.factor(data$CSP)
+```  
++ Profession valeur_null = maxF(Profession) = Craft-repair
+nbNA=length(data_categ$codeqlt[is.na(data_categ$codeqlt)])
+data_categ$codeqlt[is.na(data_categ$codeqlt)]=sample(levels(data_categ$codeqlt),nbNA,prob=table(data_categ$codeqlt),replace=TRUE)
+data_categ$codeqlt=as.factor(data_categ$codeqlt)
+
++ PaysOrigine valeur_null = maxF(PaysOrigine) = United-States  
+nbNA=length(data_categ$codeqlt[is.na(data_categ$codeqlt)])
+data_categ$codeqlt[is.na(data_categ$codeqlt)]=sample(levels(data_categ$codeqlt),nbNA,
+prob=table(data_categ$codeqlt),replace=TRUE)
+data_categ$codeqlt=as.factor(data_categ$codeqlt)
+
+Dans les resultat global de summary,nous trouvons aussi que l'attribute **Economics** present un maximum de 99999 (28), ces valeur pourraient etre pris comme erroneos 
+
+
+##### **2. Analyse Factorielle**  
+
+##### **3. Clustering**  
+
+##### **4. Prediction **
+
+4.1 Ensamble d'entrainement et de testing  
+4.2 Arbre de clasification  
+4.3 Forêt aléatoire  
+  
+  
+1. Identifier et imputer d’éventuelles données manquantes.
+2. Réaliser et interpréter une analyse factorielle sur l’ensemble de ces variables.
+3. Réaliser un clustering et interpréter vos clusters. Le nombre de clusters sera choisi de façon adéquate.
+4. Tester différents modèles pour prédire la variable revenus, qui est catégorielle :
+(a) Commencer par tirer aléatoirement 1000 données qui nous servirons de base de test, en initialisant la graine aléatoire
+de votre ordinateur à l’aide de la commande set.seed(1). Ainsi, tout le monde aura la même base de test. Les
+données restantes serviront d’apprentissage.
+(b) Réaliser une classification avec un arbre de décision. Evaluer la qualité de la prédiction sur les données tests et
+interpréter le modèle obtenu.
+(c) Réaliser une classification avec une forêt aléatoire. L’hyper-paramètre mtry sera réglé de façon intelligente, sans
+utiliser l’échantillon test. Evaluer la qualité de la prédiction sur les données tests et interpréter l’impact des différentes
+variables dans la prédiction.
+
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
