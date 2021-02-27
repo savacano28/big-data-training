@@ -1,0 +1,19 @@
+
+mysql -u root -phadoop
+CREATE DATABASE movielens;
+USE movielens;
+SHOW DATABASES;
+SOURCE movielens.sql;
+SHOW TABLES;
+select * from movies limit 10;
+
+
+GRANT ALL PRIVILEGES ON movielens.* to ''@'localhost';
+sqoop import --connect jdbc:mysql://localhost/movielens --driver com.mysql.jdbc.Driver --table movies -m 1
+sqoop import --connect jdbc:mysql://localhost/movielens --driver com.mysql.jdbc.Driver --table movies -m 1 --hive-import
+
+mysql -u root -phadoop
+use movielens;
+CREATE TABLE exp_movies(id INTEGER, title VARCHAR(15), release_date DATE);
+show tables;
+sqoop export --connect jdbc:mysql://localhost/movielens --driver com.mysql.jdbc.Driver --table exp_movies --export-dir /apps/hive/warehouse/movies --input-fields-terminated-by '\0001'
