@@ -1,0 +1,13 @@
+hbase shell
+list
+create 'users','userinfo'
+list
+
+http://media.sundog_soft.com/hadoop/hbase.pig
+head hbase.pig
+
+pig hbase.pig
+hbase shell
+list
+scan 'users'
+get 'users','99',{COLUMN => 'userinfo:gender'}
