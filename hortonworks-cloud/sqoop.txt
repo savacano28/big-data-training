@@ -4,6 +4,8 @@ CREATE DATABASE movielens;
 USE movielens;
 SHOW DATABASES;
 SOURCE movielens.sql;
+SET NAMES 'utf8':
+SET CHARACTER SET utf8;
 SHOW TABLES;
 select * from movies limit 10;
 
