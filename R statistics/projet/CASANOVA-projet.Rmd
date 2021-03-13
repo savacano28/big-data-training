@@ -2,14 +2,24 @@
 title: "Fouille de données massives - Projet final"
 author: "CASANOVA MARROQUIN Stephanya"
 date: "2/16/2021"
-output: html_document
+output:
+  html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library("FactoMineR")
+library("factoextra")
+library ("dplyr")
+library("rpart")
+library("rpart.plot")
+library("rattle")
+library("RColorBrewer")
+library("randomForest")
 ```
 ***
-### **Données  **
+### **Données  ** 
 
 Le projet a été basé sur une base de données décrivant **6224 individus américains** décrits par 15 variables : 
 
@@ -29,101 +39,224 @@ Le projet a été basé sur une base de données décrivant **6224 individus am�
 * **PaysOrigine** : le pays d’origine    
 * **Revenus** : montant des revenus (supérieur ou inférieur à 50k$)  
 
-### **Environnement de travail**  
-
-Avant de commencer, nous allons suivre les suivants actions qui nous vont permettre avoir notre environnement de travail à jour:
-
-##### **1.    Se placer dans le repertoire de travail : ** 
-  Pour cette partie, il faut juste definir notre repertoire de travail avec **setwd("~\\..")** et après valider avec **getwd()**. 
-  
-##### **2.    Installer les libraries que nous allons utiliser :  **  
-  Selon les objectives de ce projet, il faudrait installer les suivants :  
-  **FactoMineR**  
-  **readtext**  
-  **gdata**  **dplyr**
-  
-##### **3.    Charger les données dans notre environnement :  **  
+### **Import des données dans notre environnement  **  
   Pour charger les données dans notre environnement, nous allons utiliser le commande :   
 ``` {r}
 data = read.table("adult_sample.data",sep=",",header=TRUE,strip.white=TRUE,na.strings ="?", stringsAsFactors = TRUE)
 ```
-Dans ce command nous pouvons observer les parameters **sep** : separateur, **strip.white** : supprimer les espaces en blanc après d'un séparateur, **na.strings**: sustitution d'un string pour NA et **stringsAsFactors**.
+Dans ce command nous pouvons observer les parameters **sep** : réferénce au separateur, **strip.white** : supprime les espaces en blanc après d'un séparateur, **na.strings**: sustitution d'un string pour NA et **stringsAsFactors**.
 
 ***
 
 ### **Travail effectué**  
 ##### **1. Identification des valeurs nulls et imputation des valeurs**  
-Apres d'avoir importé les données, nous allons identifier les valeur nulls et nous allons les imputer un valeur par defaut. Avec le command **summary()** nous allons regarder les details des données :   
-```{r data}
-summary(data)
+Apres d'avoir importé les données, nous allons identifier les valeur nulls et nous allons les imputer un valeur par defaut. Initialment, nous identifions les variables categorielles et quantitatives :
+```{r ind_categ_feature}
+ind_categ_feature = c(2,4,6,7,8,9,10,14,15)
+data_categ = data[, ind_categ_feature]
+data_continuous = data [,-ind_categ_feature]
+```
+
+Avec le command **summary()** nous allons regarder les details des données :   
+```{r data_categ}
+summary(data_categ)
 ```  
 
-Maintenant, avec l'information donnée par summary() nous allons identifier les attributes avec les valeurs nulls et nous pourrons prendre un decision sur quel valeur nous devrons les imputer :  
-
+Dans cette information, nous pouvons observer que les variables **CSP, Profession et PaysOrigine** ont des valeurs **nulls**. 
 ```{r attWithNA}
-attWithNA<-subset(data, select=c(CSP, Profession, PaysOrigine))
+attWithNA<-subset(data_categ, select=c(CSP, Profession, PaysOrigine))
 summary(attWithNA)
 ```  
 
-Ces 3 attributs sont categorials donc nous allons imputer aux valeurs nulls le valeur avec la frecuence plus haute dans chaque cas, par exemple :
-
-+ CSP valeur_null = maxF(CSP) = Private
+Ces valeurs nulls vont etre remplacés par de valeurs aletorios en fonction de la distribution de frequences dans chaque attribut : 
 
 ```{r naCSP}
-naCSP=length(data$CSP[is.na(data$CSP)])
-data$CSP[is.na(data$CSP)]=sample(levels(data$CSP),naCSP,
-prob=table(data$CSP),replace=TRUE)
-data$CSP=as.factor(data$CSP)
+naCSP=length(data_categ$CSP[is.na(data_categ$CSP)])
+data_categ$CSP[is.na(data_categ$CSP)]=sample(levels(data_categ$CSP),naCSP,
+prob=table(data_categ$CSP),replace=TRUE)
+data_categ$CSP=as.factor(data_categ$CSP)
+ 
+nbNA=length(data_categ$Profession[is.na(data_categ$Profession)])
+data_categ$Profession[is.na(data_categ$Profession)]=sample(levels(data_categ$Profession),nbNA,
+prob=table(data_categ$Profession),replace=TRUE)
+data_categ$Profession=as.factor(data_categ$Profession)
+
+nbNA=length(data_categ$PaysOrigine[is.na(data_categ$PaysOrigine)])
+data_categ$PaysOrigine[is.na(data_categ$PaysOrigine)]=sample(levels(data_categ$PaysOrigine),nbNA,
+prob=table(data_categ$PaysOrigine),replace=TRUE)
+data_categ$PaysOrigine=as.factor(data_categ$PaysOrigine)
+``` 
+
+summary pour valider que effectivement les donnés ont été replacés :   
+
+```{r attWithNA1}
+attWithNA<-subset(data_categ, select=c(CSP, Profession, PaysOrigine))
+summary(attWithNA)
 ```  
-+ Profession valeur_null = maxF(Profession) = Craft-repair
-nbNA=length(data_categ$codeqlt[is.na(data_categ$codeqlt)])
-data_categ$codeqlt[is.na(data_categ$codeqlt)]=sample(levels(data_categ$codeqlt),nbNA,prob=table(data_categ$codeqlt),replace=TRUE)
-data_categ$codeqlt=as.factor(data_categ$codeqlt)
 
-+ PaysOrigine valeur_null = maxF(PaysOrigine) = United-States  
-nbNA=length(data_categ$codeqlt[is.na(data_categ$codeqlt)])
-data_categ$codeqlt[is.na(data_categ$codeqlt)]=sample(levels(data_categ$codeqlt),nbNA,
-prob=table(data_categ$codeqlt),replace=TRUE)
-data_categ$codeqlt=as.factor(data_categ$codeqlt)
+Maintenant, nous allons observer les details des attributes quantitatives :   
 
-Dans les resultat global de summary,nous trouvons aussi que l'attribute **Economics** present un maximum de 99999 (28), ces valeur pourraient etre pris comme erroneos 
+```{r summ}
+summary(data_continuous)
+```  
+
+Dans les resultat, nous ne trouvons pas des valeurs nulls.
+
+Nous allons supprimer le variable redondante ScoreDiplome puisque est le recodage de la variable Diplome :   
+```{r recodage}
+data_continuous$ScoreDiplome = NULL
+```
+
+##### **2. Analyse Factorielle**    
+
+Maintenant avec la data traitée, nous allons faire un analyse en composant principales sur les variables continues :    
+```{r acp}
+res.pca <- PCA(data_continuous, graph = FALSE)
+fviz_eig(res.pca, addlabels = TRUE)
+```  
+  
+Du graphique ci-dessus, nous observons que le 82.9% (> 72%) des informations (variances) contenues dans les données sont conservées par les quatre premières composantes principales. 
+
+```{r plot dim princ vs ortog}
+# Colorer en fonction du cos2: qualité de représentation
+fviz_pca_var(res.pca, col.var = "cos2",
+             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+             repel = TRUE # Évite le chevauchement de texte
+             )
+```    
+  
+Le graphique de corrélation des variables ci-dessus montre les relations entre toutes les variables. Il peut être interprété comme suit:     
+* Les variables : **Dettes et HeureSemaine** et **Age et Economies** sont positivement corrélées.  
+* Les variables : **ScoreDemo et (Age, Economies)** sont négativement corrélées.  
+* Les variables **ScoreDemo, Age et HeureSemaine** ne sont pas bien répresentés pour l'ACP (cos2) à difference de **Dettes et Economies**  
+
+Maintenant, nous allons regarder la contribution de chaque variable aux axes principales :      
+```{r cont axe}
+res.pca$var$contrib
+```    
+
+Maintenant, pour les individues :
+```{r plot ind}
+fviz_pca_ind(res.pca)
+```   
+  
+Le graphique ci-dessus permet observer le comportement de chaque individue en considerant les variables : **age, economies, heureSemaine, dettes et scoreDemo**. Nous pouvons observer alors les gens ayent le plus de dettes et les plus d'heures travaillées en haut et les gens qui ont plus des economies et d'age en bas. Le groupe en bas à droite répresent un groupe avec des economies et des revenus elevés. Ces individues vont etre mis de côté pour l'analyse.  
+
+```{r plot filter data}
+data_categ$Economies = data_continuous$Economies
+data_continuous<-filter(data_continuous, Economies != 99999)
+data_categ<-filter(data_categ, Economies != 99999)
+data_categ$Economies = NULL
+res.pca <- PCA(data_continuous, graph = FALSE)
+fviz_eig(res.pca, addlabels = TRUE)
+```
+```{r plot var economies filter}
+fviz_pca_var(res.pca, col.var = "cos2",
+             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+             repel = TRUE # Évite le chevauchement de texte
+             )
+```
 
 
-##### **2. Analyse Factorielle**  
+```{r plot ind economies filter}
+fviz_pca_ind(res.pca)
+```   
 
 ##### **3. Clustering**  
+Comme les unités de mesure sont très différentes, nous allons normaliser les données :   
+```{r plot normaliser}
+data_continuous2=scale(data_continuous)
+```   
 
-##### **4. Prediction **
+Maintenant, nous allons utiliser l’inertie intra-classe pour choisir un nombre de clusters adequat :  
+  
+```{r plot clustering nb}
+inertie=c()
+for (k in 1:10){
+res=kmeans(data_continuous2,centers=k,nstart = 10)
+inertie[k]=res$tot.withinss
+}
+plot(1:10,inertie,type='l')
+```
 
-4.1 Ensamble d'entrainement et de testing  
-4.2 Arbre de clasification  
-4.3 Forêt aléatoire  
-  
-  
-1. Identifier et imputer d’éventuelles données manquantes.
-2. Réaliser et interpréter une analyse factorielle sur l’ensemble de ces variables.
-3. Réaliser un clustering et interpréter vos clusters. Le nombre de clusters sera choisi de façon adéquate.
-4. Tester différents modèles pour prédire la variable revenus, qui est catégorielle :
-(a) Commencer par tirer aléatoirement 1000 données qui nous servirons de base de test, en initialisant la graine aléatoire
-de votre ordinateur à l’aide de la commande set.seed(1). Ainsi, tout le monde aura la même base de test. Les
-données restantes serviront d’apprentissage.
-(b) Réaliser une classification avec un arbre de décision. Evaluer la qualité de la prédiction sur les données tests et
-interpréter le modèle obtenu.
-(c) Réaliser une classification avec une forêt aléatoire. L’hyper-paramètre mtry sera réglé de façon intelligente, sans
+Selon le graphique, nous allons choisir 4 clusters.  
+
+```{r plot clustering 4}
+res_ka=kmeans(data_continuous2,centers=4,nstart = 10)
+res.pca <- PCA(data_continuous2, graph = FALSE)
+plot(res.pca,choix = "ind",col.ind = res_ka$cluster,graph.type = "classic")
+```  
+    
+Ces 4 clusters pourraient correspondre à :     
+* **Cluster axe 1 centre ** = Les gens qui travaillent le plus  
+* **Cluster axe 1 en haut** = Les gens avec plus de dettes  
+* **Cluster axe 2 centre ** = Les gens avec le scoreDemo plus haut  
+* **Cluster axe 4** = Les gens avec plus des economies et agés  
+
+```{r plot var clustering}
+plot(res.pca,choix = "var",graph.type = 'classic')
+```   
+
+##### **4. Prediction ** 
+
+##### **4.1 Ensamble d'entrainement et de testing  **    
+Pour la base de test, nous allons prendre 1000 individus au hasard :  
+```{r set test train}
+set.seed(1)
+ind_test=sample(1:nrow(data_continuous),1000)
+dco_test=data_continuous[ind_test,]
+dco_app=data_continuous[-ind_test,]
+dca_test=data_categ[ind_test,]
+dca_app=data_categ[-ind_test,]
+```  
+
+##### **4.2 Arbre de clasification  ** 
+Pour la classification, nous allons utiliser un arbre binaire sur les données quantitatives. Il faut alors utiliser un dataframe et rapatrier la variable à prédire **Revenus** dans le même dataframe que les variables quantitatives :   
+
+```{r plot var tree}
+dfco_app=data.frame(dco_app,Revenus=dca_app$Revenus)
+mod2=rpart(Revenus~.,data=dfco_app)
+p=predict(mod2,newdata = dco_test,type='class')
+fancyRpartPlot(mod2,caption=NULL)
+```   
+
+Pour évaluer les performances de l'arbre, nous allons observer la taux de bon classement et la matrice de confusion : 
+```{r plot var perf1}
+mean(p==dca_test$Revenus)
+table(p, dca_test$Revenus)
+```
+
+On constate que la qualité de la prédiction dépend beaucoup de la classe. En effet, sur les 934 individuos qui ont revenus <= 50K, le taux de prévisions correctes est de 82.44 % environ, alors que sur les 66 individuos avec >50K, il n'est que de 92.42 % environ.  
+
+Maintenant, si nous voudrions considereR tous les variables quantitatives et categorielles :  
+
+```{r plot var tree2}
+app=cbind(dco_app,dca_app)
+test=cbind(dco_test,dca_test)
+mod3=rpart(Revenus~.,data=app)
+p=predict(mod3,newdata = test,type='class')
+fancyRpartPlot(mod3,caption=NULL)
+```  
+
+Taux de bon classement et la matrice de confusion :  
+```{r plot var perf 2}
+mean(p==test$Revenus)
+table(p, test$Revenus)
+```
+
+### **4.3 Forêt aléatoire  **  
+Réaliser une classification avec une forêt aléatoire. L’hyper-paramètre mtry sera réglé de façon intelligente, sans
 utiliser l’échantillon test. Evaluer la qualité de la prédiction sur les données tests et interpréter l’impact des différentes
 variables dans la prédiction.
 
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r plot foret}
+mod4=randomForest(Revenus~.,data=app)
+p=predict(mod4,newdata = test,type='class')
+table(p, test$Revenus)
+mean(p==test$Revenus)
+varImpPlot(mod4)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+
+
