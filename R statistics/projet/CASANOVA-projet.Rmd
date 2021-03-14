@@ -1,10 +1,10 @@
 ---
-title: "Fouille de données massives - Projet final"
+title: "Projet Final - Fouille de Données Massives"
 author: "CASANOVA MARROQUIN Stephanya"
 date: "03/12/2021"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -20,9 +20,9 @@ library("randomForest")
 ```
 ***
 
-### **Données  ** 
+### **Données  **   
 
-Le projet a été basé sur une base de données décrivant **6224 individus américains** décrits par 15 variables : 
+Le projet a été basé sur une base de données décrivant **6224 individus américains** décrits par 15 variables: 
 
 * **Age** : âge  
 * **CSP** : catégorie socio-professionnelle  
@@ -42,18 +42,21 @@ Le projet a été basé sur une base de données décrivant **6224 individus am�
 
 ***
 
-### **Import des données dans notre environnement  **  
+### **Import des données dans notre environnement  **      
+  
   Pour charger les données dans notre environnement, nous allons utiliser le commande :   
 ``` {r}
-data = read.table("adult_sample.data",sep=",",header=TRUE,strip.white=TRUE,na.strings ="?", stringsAsFactors = TRUE)
+data = read.table("adult_sample.data",sep=",",header=TRUE,
+                  strip.white=TRUE,na.strings ="?", 
+                  stringsAsFactors = TRUE)
 ```
 Dans ce commande nous pouvons observer les parameters **sep** : référence au séparateur, **strip.white** : supprime les espaces en blanc après d'un séparateur, **na.strings**: sustitution d'un string pour NA et **stringsAsFactors**.
 
 ***
 
-### **Travail effectué** 
-### {.tabset}
-#### **1. Identification des valeurs nulls et imputation des valeurs**  
+### **Travail effectué**     
+  
+#### **1. Identification des valeurs nulls et imputation des valeurs : **    
 
 Après d'avoir importé les données, nous allons identifier les valeur nulls et nous allons les imputer une valeur par defaut. Initialement, nous identifions les variables catégorielles et quantitatives :
 ```{r ind_categ_feature}
@@ -112,8 +115,8 @@ Nous allons supprimer la variable redondante ScoreDiplome puisque est le recodag
 data_continuous$ScoreDiplome = NULL
 ```
 
-#### **2. Analyse Factorielle**    
-
+#### **2. Analyse Factorielle : **  
+  
 Maintenant avec la data traitée, nous allons faire une analyse en composant principals sur les variables continues :    
 ```{r acp}
 res.pca <- PCA(data_continuous, graph = FALSE)
@@ -169,7 +172,8 @@ fviz_pca_var(res.pca, col.var = "cos2",
 fviz_pca_ind(res.pca)
 ```   
 
-#### **3. Clustering**  
+#### **3. Clustering : **  
+  
 Comme les unités de mesure sont très différentes, nous allons normaliser les données :   
 ```{r plot normaliser}
 data_continuous2=scale(data_continuous)
@@ -204,13 +208,10 @@ Ces 4 clusters pourraient correspondre à :
 plot(res.pca,choix = "var",graph.type = 'classic')
 ```   
 
-#### **4 Prediction**  {.tabset}
-**4.1 Ensemble d'entraînement et de testing  **    
-**4.2 Arbre de clasification  **   
-**4.3 Forêt aléatoire  **   
-
-<div id="quarterly-dataset" class="section level3">
-##### **4.1 Ensemble d'entraînement et de testing  **    
+#### **4 Prediction**         
+  
+##### **4.1 Ensemble d'entraînement et de testing : **  
+  
 Pour la base de test, nous allons prendre 1000 individus au hasard :  
 ```{r set test train}
 set.seed(1)
@@ -220,10 +221,9 @@ dco_app=data_continuous[-ind_test,]
 dca_test=data_categ[ind_test,]
 dca_app=data_categ[-ind_test,]
 ```  
-</div>
 
-<div id="quarterly-tree" class="section level3">
-##### **4.2 Arbre de clasification  ** 
+##### **4.2 Arbre de clasification : **  
+  
 Pour la classification, nous allons utiliser un arbre binaire sur les données quantitatives. Il faut alors utiliser un dataframe et rapatrier la variable à prédire **Revenus** dans le même dataframe que les variables quantitatives :   
 
 ```{r plot var tree}
@@ -256,13 +256,10 @@ Taux de bon classement et la matrice de confusion :
 mean(p==test$Revenus)
 table(p, test$Revenus)
 ```
-</div>
-
-<div id="quarterly-foret" class="section level3">
-##### **4.3 Forêt aléatoire  **  
-Réaliser une classification avec une forêt aléatoire. L’hyper-paramètre mtry sera réglé de façon intelligente, sans
-utiliser l’échantillon test. Èvaluer la qualité de la prédiction sur les données tests et interpréter l’impact des différentes
-variables dans la prédiction.
+  
+##### **4.3 Forêt aléatoire : **  
+  
+Pour la classification avec une forêt aléatoire, nous allons observer l’impact des différentes variables dans la prédiction et nous allons modifier l’hyper-paramètre mtry pour obtenir une meilleur taux de classification.
 
 ```{r plot foret}
 set.seed(123)
@@ -305,9 +302,9 @@ Nous obtenons un taux de bon classement et la matrice de confusion :
 mean(p==test$Revenus) 
 table(p, test$Revenus)
 ```` 
-</div>
-
-#### **Références  **   
+  
+#### **Références  **    
+  
 Mars 14 2021  
 http://www.sthda.com/french/wiki/fviz-pca-visualisation-de-l-analyse-en-composante-principale-logiciel-r-et-analyse-de-donn-es  
 http://mehdikhaneboubi.free.fr/random_forest_r.html  
