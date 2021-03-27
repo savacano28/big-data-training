@@ -21,7 +21,12 @@ if __name__ == '__main__':
     from Datalake_Extraction_Metadonnes import Generation_Fichiers_avec_Metadonnees_SOC
     from Datalake_Extraction_Metadonnes import Generation_Fichiers_avec_Metadonnees_EMP
     from Datalake_Extraction_Metadonnes import Generation_Fichiers_avec_Metadonnees_AVI
-
+    from Datalake_Creation_Entrepot_Donnees import Initialization_Database
+    from Datalake_Creation_Entrepot_Donnees import Insert_Donnees_SOC
+    from Datalake_Creation_Entrepot_Donnees import Insert_Donnees_EMP
+    from Datalake_Creation_Entrepot_Donnees import Insert_Donnees_AVI
+    from Datalake_Creation_Entrepot_Donnees import Insert_Donnees_FAIT_AVIS
+    from Datalake_Creation_Entrepot_Donnees import Insert_Donnees_FAIT_EMPLOIS
     
     #------------------------------------------------------------------------------
     #--DEBUT CHRONO
@@ -38,10 +43,14 @@ if __name__ == '__main__':
     Generation_Fichiers_avec_Metadonnees_AVI()
     Generation_Fichiers_avec_Metadonnees_EMP()
     
-    #--PRODUCTION ZONE
+    #--RAFFINAGE ZONE
+    Initialization_Database()
+    Insert_Donnees_SOC()
+    Insert_Donnees_EMP()
+    Insert_Donnees_AVI()
+    Insert_Donnees_FAIT_AVIS()
+    Insert_Donnees_FAIT_EMPLOIS()
     
-
-
     #------------------------------------------------------------------------------
     #-- FIN CHRONO 
     #------------------------------------------------------------------------------    

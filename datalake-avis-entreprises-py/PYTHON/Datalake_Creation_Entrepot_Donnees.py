@@ -11,10 +11,16 @@ from textblob_fr import PatternTagger, PatternAnalyzer
 from collections import Counter
 from nltk.corpus import stopwords
 
-def Initialization_Databse () : 
+def Initialization_Database () : 
     con = psycopg2.connect(database="BASE_CURATED_ZONE", user="postgres", password="admin", host="127.0.0.1", port="5433")
     
     cur = con.cursor()
+    
+    cur.execute("DROP TABLE IF EXISTS DIM_SOCIETE;");
+    cur.execute("DROP TABLE IF EXISTS AVIS;");
+    cur.execute("DROP TABLE IF EXISTS EMPLOI;");
+    cur.execute("DROP TABLE IF EXISTS FAIT_EMPLOIS;");
+    cur.execute("DROP TABLE IF EXISTS FAIT_AVIS;");
     
     cur.execute('''CREATE TABLE DIM_SOCIETE
                   (CLE DECIMAL PRIMARY KEY NOT NULL,
@@ -50,21 +56,18 @@ def Initialization_Databse () :
                   );''')
     print("Table EMPLOI created successfully")
     
-    cur.execute('''CREATE TABLE FAIT_EMPLOI
-                  (CLE DECIMAL PRIMARY KEY NOT NULL,
-                  ENTREPRISE CHAR(500),
-                  LOCATION CHAR(500),
-                  TYPE_EMPLOI CHAR(500),
-                  HIERARCHIE CHAR(500),
-                  MAX_DATE_PUBLICATION DATE,
-                  NRO_POSTES CHAR(500),
-                  NRO_POSTES_UNIQ CHAR(500),
-                  AVG_CANDIDATES INT,
-                  MAX_DESCRIPTION_JOB_MOT CHAR(500),
-                  MAX_FUNCTION CHAR(500),
-                  MAX_SECTEURS CHAR(500)
+    cur.execute('''CREATE TABLE FAIT_EMPLOIS
+                  (ENTREPRISE CHAR(5000),
+                  LOCATION CHAR(5000),
+                  TYPE_EMPLOI CHAR(5000),
+                  HIERARCHIE CHAR(5000),
+                  SECTEURS CHAR(5000),
+                  FUNCTION CHAR(5000),
+                  DATE_PUBLICATION CHAR(5000),
+                  NB_POSTES INT,
+                  MYN_NB_CANDIDATES FLOAT
                   );''')
-    print("Table FAIT_EMPLOI created successfully")
+    print("Table FAIT_EMPLOIS created successfully")
                         
     cur.execute('''CREATE TABLE AVIS
                   (CLE DECIMAL PRIMARY KEY NOT NULL,
@@ -84,18 +87,15 @@ def Initialization_Databse () :
     print("Table AVIS created successfully")
     
     cur.execute('''CREATE TABLE FAIT_AVIS
-                  (CLE DECIMAL PRIMARY KEY NOT NULL,
-                  ENTREPRISE CHAR(500),
+                  (ENTREPRISE CHAR(500),
                   DATE_AVIS DATE,
-                  STATUS_EMPLOYE CHAR(50),
+                  STATUS_EMPLOYE CHAR(500),
                   LIEU CHAR(500),
-                  AVG_RECOMMANDE CHAR(500),
-                  SENT_COMMENTAIRE CHAR(500),
-                  SENTI_REVIEW_TITRE CHAR(500),
-                  MAX_AVANTAGE CHAR(500),
-                  MAX_INCONVENIENT CHAR(500),
-                  MIN_AVANTAGE CHAR(500),
-                  MIN_INCONVENIENT CHAR(500)
+                  RECOMMANDE CHAR(500),
+                  MYN_REVIEW_TITRE CHAR(500),
+                  MYN_COMMENTAIRE CHAR(500),
+                  AVANTAGES CHAR(500),
+                  INCONVENIENTS CHAR(500)
                   );''')
     print("Table FAIT_AVIS created successfully")
         
@@ -207,22 +207,33 @@ def Insert_Donnees_AVI() :
     con.close()
     return (True)
 
-def Insert_Donnees_FAIT_AVI() :
+def Insert_Donnees_FAIT_AVIS() :
     con = psycopg2.connect(database="BASE_CURATED_ZONE", user="postgres", password="admin", host="127.0.0.1", port="5433")
     cur = con.cursor()
-    cur.execute("SELECT entreprise, date_avis, status_employe,lieu from AVIS group by (entreprise, date_avis, status_employe,lieu)")
+    cur.execute("select entreprise,date_avis,status_employe,lieu, recommande, avg(review_titre) as myn_rev_titre,avg(commentaire) as myn_commentaire, count(avantage) avantages, count(inconvenient) inconvenients from avis group by entreprise,date_avis,status_employe,lieu,recommande order by lieu")
     rows = cur.fetchall()
-    
-    for row in rows :
-        
-        
-        
-        cur.execute("INSERT INTO AVIS VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
-                    (entreprise,date,status_employe,lieu,recommande,commentaire,review_titre,max_avantage,max_incovenient,min_avantage,min_incovenient))
-    
-    
+    for row in rows:
+        cur.execute("INSERT INTO FAIT_AVIS VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)",
+                    (row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8]))
+    con.commit()
+    cur.close()
     con.close()
     return (True)
+
+def Insert_Donnees_FAIT_EMPLOIS() :
+    con = psycopg2.connect(database="BASE_CURATED_ZONE", user="postgres", password="admin", host="127.0.0.1", port="5433")
+    cur = con.cursor()
+    cur.execute("select entreprise,location,type_emploi,hierarchie, secteurs, function, date_publication, count(poste) as nb_postes, round(avg(nro_candidates)) myn_nb_candidates from emploi group by entreprise,location,type_emploi,hierarchie, secteurs, function, date_publication order by entreprise,location,type_emploi,hierarchie, secteurs, function, date_publication")
+    rows = cur.fetchall()
+    for row in rows:
+        cur.execute("INSERT INTO FAIT_EMPLOIS VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)",
+                    (row[0],row[1],row[2],row[3],row[4],row[5],row[6],row[7],row[8]))
+    
+    con.commit()
+    cur.close()
+    con.close()
+    return (True)
+
 
 
 
